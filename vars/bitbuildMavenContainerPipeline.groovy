@@ -11,13 +11,13 @@ def call(body) {
 
 pipeline {
   agent {
-    label build_agent
+    label pipelineParams.build_agent
   }
 
   environment {
     ENV_PROFILE = getEnvProfile(BRANCH_NAME)
-    MVN_SETTINGS_XML = credentials("${mvn_settings}")
-    REGISTRY_CREDS = "${registry_creds_prefix}-${env.ENV_PROFILE}"
+    MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
+    REGISTRY_CREDS = "${pipelineParams.registry_creds_prefix}-${env.ENV_PROFILE}"
   }
 
   stages {
