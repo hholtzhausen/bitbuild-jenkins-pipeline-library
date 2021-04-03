@@ -29,6 +29,12 @@ pipeline {
         sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW install -P$ENV_PROFILE,ocp-deployment'
       }
     }
+
+    stage ('Clean') {
+      steps {
+        sh 'mvn -s $MVN_SETTINGS_XML clean'
+      }
+    }
   }
 }
 }
