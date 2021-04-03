@@ -26,7 +26,7 @@ pipeline {
         OC_CREDS = credentials("${OC_CREDS_ID}")
       }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW -P$ENV_PROFILE,ocp-deployment'
+        sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW install -P$ENV_PROFILE,ocp-deployment'
       }
     }
   }
