@@ -23,7 +23,7 @@ pipeline {
   stages {
     stage ('Build/Test') {
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE'
+        sh 'mvn -s $MVN_SETTINGS_XML package -P$ENV_PROFILE'
       }
     }
 
@@ -32,7 +32,8 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-package -P$ENV_PROFILE,oci-image'
+        //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-package -P$ENV_PROFILE,oci-image'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true install -P$ENV_PROFILE,oci-image'
       }
     }
 
@@ -41,8 +42,8 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
-        //sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image'
+        //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image'
       }
     }
 
