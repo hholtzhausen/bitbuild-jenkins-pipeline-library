@@ -27,23 +27,13 @@ pipeline {
       }
     }
 
-    stage ('Container Image') {
-      environment {
-        REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
-      }
-      steps {
-        //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-install -P$ENV_PROFILE,oci-image'
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true install -P$ENV_PROFILE,oci-image'
-      }
-    }
-
-    stage ('Push to Registry') {
+    stage ('Container Image/Push to Registry') {
       environment {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
         //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true -Dmaven.skip.install=true deploy -P$ENV_PROFILE,oci-image'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image'
       }
     }
 
