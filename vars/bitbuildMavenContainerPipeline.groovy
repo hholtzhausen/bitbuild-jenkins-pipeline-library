@@ -35,24 +35,31 @@ pipeline {
     }
 
     stage ('Build/Test') {
+      environment {
+        MVN_ARGS = mvnArgs
+      }
       steps {
-        sh "mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE ${mvnArgs}"
+        sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
       }
     }
 
     stage ('Container Image/Push to Registry') {
       environment {
+        MVN_ARGS = mvnArgs
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
         //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
-        sh "mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image ${mvnArgs}"
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
       }
     }
 
     stage ('Clean') {
+      environment {
+        MVN_ARGS = mvnArgs
+      }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML clean -Poci-image'
+        sh 'mvn -s $MVN_SETTINGS_XML clean -Poci-image $MVN_ARGS'
       }
     }
   }

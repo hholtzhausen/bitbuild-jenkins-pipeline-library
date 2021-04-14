@@ -28,6 +28,5 @@ def getChangeSetDirs(changeLogSets) {
     }
   }
 
-  echo "${output}"
   return output.join(",")
 }
