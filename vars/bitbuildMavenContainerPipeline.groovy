@@ -25,11 +25,13 @@ pipeline {
   stages {
     stage ('Init Build') {
       steps {
-//        checkout scm
         script {
-          mvnArgs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+          def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+
+          if(dirs.length() > 0)
+            mvnArgs = "-pl .,${dirs}"
         }
-        echo "-pl ${mvnArgs}" 
+        echo "${mvnArgs}" 
       }
     }
 
