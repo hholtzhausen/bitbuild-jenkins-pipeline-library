@@ -25,7 +25,9 @@ pipeline {
   stages {
     stage ('Init Build') {
       steps {
-        mvnArgs = getChangeSetDirs(currentBuild.changeSets)
+        script {
+          mvnArgs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+        }
         echo "-pl ${mvnArgs}" 
       }
     }
