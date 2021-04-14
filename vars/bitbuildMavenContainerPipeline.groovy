@@ -31,7 +31,6 @@ pipeline {
           if(dirs.length() > 0)
             mvnArgs = "-pl .,${dirs}"
         }
-        echo "${mvnArgs}" 
       }
     }
 
@@ -47,7 +46,7 @@ pipeline {
       }
       steps {
         //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image ${mvnArgs}'
       }
     }
 
