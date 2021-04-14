@@ -9,6 +9,8 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
+def mvnArgs = ""
+
 pipeline {
   agent {
     label pipelineParams.build_agent
@@ -21,6 +23,11 @@ pipeline {
   }
 
   stages {
+    stage ('Init Build') {
+      mvnArgs = getChangeSetDirs(currentBuild.changeSets)
+      echo "-pl ${mvnArgs}" 
+    }
+
     stage ('Build/Test') {
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE'
