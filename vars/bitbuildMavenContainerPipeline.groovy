@@ -36,7 +36,7 @@ pipeline {
 
     stage ('Build/Test') {
       environment {
-        MVN_ARGS = mvnArgs
+        MVN_ARGS = "${mvnArgs}"
       }
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
@@ -45,7 +45,7 @@ pipeline {
 
     stage ('Container Image/Push to Registry') {
       environment {
-        MVN_ARGS = mvnArgs
+        MVN_ARGS = "${mvnArgs}"
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
@@ -56,7 +56,7 @@ pipeline {
 
     stage ('Clean') {
       environment {
-        MVN_ARGS = mvnArgs
+        MVN_ARGS = "${mvnArgs}"
       }
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML clean -Poci-image $MVN_ARGS'
