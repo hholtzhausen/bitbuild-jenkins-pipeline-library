@@ -1,0 +1,5 @@
+TODO:
+
+* SCM tagging when building master
+* Implement changesets on non-prod branches
+** Set maven -pl option based on changeset values.

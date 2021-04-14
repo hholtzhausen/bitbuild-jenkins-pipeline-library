@@ -24,8 +24,10 @@ pipeline {
 
   stages {
     stage ('Init Build') {
-      mvnArgs = getChangeSetDirs(currentBuild.changeSets)
-      echo "-pl ${mvnArgs}" 
+      steps {
+        mvnArgs = getChangeSetDirs(currentBuild.changeSets)
+        echo "-pl ${mvnArgs}" 
+      }
     }
 
     stage ('Build/Test') {
