@@ -23,7 +23,7 @@ def getChangeSetDirs(changeLogSets) {
       for (int k = 0; k < files.size(); k++) {
             def filePath = files[k].path
             if(!filePath.startsWith("vars"))
-              output.add(filePath.substring(0,filePath.firstIndexOf("/")))
+              output.add(filePath.substring(0,filePath.indexOf("/")))
       }
     }
   }
