@@ -12,7 +12,7 @@ def getEnvProfile(branchName) {
 
 def getChangeSetDirs(changeLogSets) {
 
-  Set output 
+  Set output = []
 
   for (int i = 0; i < changeLogSets.size(); i++) {
     def entries = changeLogSets[i].items
