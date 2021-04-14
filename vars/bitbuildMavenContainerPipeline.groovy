@@ -25,7 +25,7 @@ pipeline {
   stages {
     stage ('Init Build') {
       steps {
-        checkout scm
+//        checkout scm
         script {
           mvnArgs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
         }
