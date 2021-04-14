@@ -36,7 +36,7 @@ pipeline {
 
     stage ('Build/Test') {
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE ${mvnArgs}'
+        sh "mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE ${mvnArgs}"
       }
     }
 
@@ -46,7 +46,7 @@ pipeline {
       }
       steps {
         //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image ${mvnArgs}'
+        sh "mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image ${mvnArgs}"
       }
     }
 
