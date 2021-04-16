@@ -9,6 +9,8 @@ def call(body) {
     body.delegate = pipelineParams
     body()
 
+def mvnArgs = ""
+
 pipeline {
   agent {
     label pipelineParams.build_agent
@@ -20,19 +22,45 @@ pipeline {
     OC_CREDS_ID = "${pipelineParams.oc_creds_prefix}-${env.ENV_PROFILE}"
   }
 
+
+
   stages {
-    stage ('Apply Openshift Resources') {
-      environment {
-        OC_CREDS = credentials("${OC_CREDS_ID}")
+    stage ('Init Build') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
       }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW install -P$ENV_PROFILE,ocp-deployment'
+        script {
+          def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+
+          if(dirs.length() > 0)
+            mvnArgs = "-pl .,${dirs}"
+        }
+      }
+    }
+
+    stage ('Apply Openshift Resources') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
+      environment {
+        OC_CREDS = credentials("${OC_CREDS_ID}")
+        MVN_ARGS = "${mvnArgs}"
+      }
+      steps {
+        sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW install -P$ENV_PROFILE,ocp-deployment $MVN_ARGS'
       }
     }
 
     stage ('Clean') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
+      environment {
+        MVN_ARGS = "${mvnArgs}"
+      }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML clean'
+        sh 'mvn -s $MVN_SETTINGS_XML clean $MVN_ARGS'
       }
     }
   }

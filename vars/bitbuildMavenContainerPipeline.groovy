@@ -24,6 +24,9 @@ pipeline {
 
   stages {
     stage ('Init Build') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
       steps {
         script {
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
@@ -34,7 +37,10 @@ pipeline {
       }
     }
 
-    stage ('Build/Test') {
+    stage ('Build/UnitTest') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
       environment {
         MVN_ARGS = "${mvnArgs}"
       }
@@ -44,17 +50,22 @@ pipeline {
     }
 
     stage ('Container Image/Push to Registry') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
       environment {
         MVN_ARGS = "${mvnArgs}"
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        //sh 'mvn -s $MVN_SETTINGS_XML exec:exec@oci-image-deploy -P$ENV_PROFILE,oci-image'
         sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
       }
     }
 
     stage ('Clean') {
+      when {
+        not { environment name: 'ENV_PROFILE', value: 'local' }
+      }
       environment {
         MVN_ARGS = "${mvnArgs}"
       }
