@@ -22,7 +22,7 @@ def getChangeSetDirs(changeLogSets) {
       def files = new ArrayList(entry.affectedFiles)
       for (int k = 0; k < files.size(); k++) {
             def filePath = files[k].path
-            if(!filePath.startsWith("vars"))
+            if(!filePath.startsWith("vars") && !filePath.equals("pom.xml"))
               output.add(filePath.substring(0,filePath.indexOf("/")))
       }
     }
