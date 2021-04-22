@@ -10,6 +10,7 @@ def call(body) {
     body()
 
 def mvnArgs = ""
+def scmVars
 
 pipeline {
   agent {
@@ -23,6 +24,10 @@ pipeline {
   }
 
   stages {
+    stage ('Checkout') {
+      scmVars = checkout scm
+    }
+    
     stage ('Init Build') {
       when {
         not { environment name: 'ENV_PROFILE', value: 'local' }
@@ -45,6 +50,8 @@ pipeline {
         MVN_ARGS = "${mvnArgs}"
       }
       steps {
+        echo "URL: ${scmVars.GIT_URL}"
+        echo "BRANCH: ${scmVars.GIT_BRANCH}"
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
       }
     }
