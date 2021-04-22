@@ -31,7 +31,7 @@ pipeline {
       }
       steps {
         script {
-          scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+          scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url')
 
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
@@ -47,8 +47,9 @@ pipeline {
       }
       steps {
         script {
-          projectVersion = sh(returnStdout: true, 
-                              script: 'mvn help:evaluate -Dexpression=project.version -DforceStdout -q -pl .').trim()
+          projectVersion = 
+              sh(returnStdout: true, 
+                 script: 'mvn -s $MVN_SETTINGS_XML help:evaluate -Dexpression=project.version -DforceStdout -q -pl .')
         }
 
         echo "VERSION: ${projectVersion}"
