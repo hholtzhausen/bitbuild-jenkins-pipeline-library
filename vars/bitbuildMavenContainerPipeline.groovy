@@ -10,7 +10,7 @@ def call(body) {
     body()
 
 def mvnArgs = ""
-def scmVars
+def scmUrl
 
 pipeline {
   agent {
@@ -24,17 +24,12 @@ pipeline {
   }
 
   stages {
-    stage ('Checkout') {
-      steps {
-        scmVars = checkout scm
-      }
-    }
-    
     stage ('Init Build') {
       when {
         not { environment name: 'ENV_PROFILE', value: 'local' }
       }
       steps {
+        scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
         script {
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
@@ -52,8 +47,8 @@ pipeline {
         MVN_ARGS = "${mvnArgs}"
       }
       steps {
-        echo "URL: ${scmVars.GIT_URL}"
-        echo "BRANCH: ${scmVars.GIT_BRANCH}"
+        echo "URL: ${scmUrl.GIT_URL}"
+        echo "BRANCH: ${BRANCH_NAME}"
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
       }
     }
