@@ -67,6 +67,18 @@ pipeline {
       }
     }
 
+    stage ('Tag Release') {
+      when {
+        environment name: 'ENV_PROFILE', value: 'prod'
+      }
+      environment {
+        PROJECT_VERSION = readMavenPom().getVersion()
+      }
+      steps {
+        echo 'VERSION: $PROJECT_VERSION'
+      }
+    }
+
     stage ('Clean') {
       when {
         not { environment name: 'ENV_PROFILE', value: 'local' }
