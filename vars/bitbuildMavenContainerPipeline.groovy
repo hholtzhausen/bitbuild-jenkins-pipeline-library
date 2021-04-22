@@ -29,8 +29,9 @@ pipeline {
         not { environment name: 'ENV_PROFILE', value: 'local' }
       }
       steps {
-        scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
         script {
+          scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
           if(dirs.length() > 0)
