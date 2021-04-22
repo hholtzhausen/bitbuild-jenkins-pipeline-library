@@ -25,7 +25,9 @@ pipeline {
 
   stages {
     stage ('Checkout') {
-      scmVars = checkout scm
+      steps {
+        scmVars = checkout scm
+      }
     }
     
     stage ('Init Build') {
