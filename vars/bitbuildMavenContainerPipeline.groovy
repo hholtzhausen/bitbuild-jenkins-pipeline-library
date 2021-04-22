@@ -11,6 +11,7 @@ def call(body) {
 
 def mvnArgs = ""
 def scmUrl
+def projectVersion
 
 pipeline {
   agent {
@@ -44,11 +45,13 @@ pipeline {
       when {
         environment name: 'ENV_PROFILE', value: 'prod'
       }
-      environment {
-        PROJECT_VERSION = readMavenPom().getVersion()
-      }
       steps {
-        echo 'VERSION: $PROJECT_VERSION'
+        script {
+          projectVersion = sh(returnStdout: true, 
+                              script: 'mvn help:evaluate -Dexpression=project.version -DforceStdout -q -pl .').trim()
+        }
+
+        echo "VERSION: ${projectVersion}"
       }
     }
 
