@@ -48,7 +48,7 @@ pipeline {
         MVN_ARGS = "${mvnArgs}"
       }
       steps {
-        echo "URL: ${scmUrl.GIT_URL}"
+        echo "URL: ${scmUrl}"
         echo "BRANCH: ${BRANCH_NAME}"
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
       }
