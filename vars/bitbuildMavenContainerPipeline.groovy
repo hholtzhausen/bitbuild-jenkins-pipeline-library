@@ -10,9 +10,8 @@ def call(body) {
     body()
 
 def mvnArgs = ""
-def scmUrl
 def projectVersion
-def gitCredential = "git-credential"
+def gitCredential = pipelineParams.git_credentials
 
 pipeline {
   agent {
@@ -32,7 +31,6 @@ pipeline {
       }
       steps {
         script {
-          scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url')
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
           if(dirs.length() > 0)
@@ -41,7 +39,7 @@ pipeline {
       }
     }
 
-/*
+
     stage ('Build/UnitTest') {
       when {
         not { environment name: 'ENV_PROFILE', value: 'local' }
@@ -63,11 +61,9 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        //sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE $MVN_ARGS'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
       }
     }
-*/
 
     stage ('Tag Release') {
       when {
@@ -81,6 +77,7 @@ pipeline {
         }
 
         sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
+
         sshagent([ gitCredential ]) {
           sh "git push origin ${projectVersion} HEAD:${BRANCH_NAME}"
         }

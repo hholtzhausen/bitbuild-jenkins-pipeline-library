@@ -10,6 +10,8 @@ def call(body) {
     body()
 
 def mvnArgs = ""
+def projectVersion
+def gitCredential = pipelineParams.git_credentials
 
 pipeline {
   agent {
@@ -21,8 +23,6 @@ pipeline {
     MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
     OC_CREDS_ID = "${pipelineParams.oc_creds_prefix}-${env.ENV_PROFILE}"
   }
-
-
 
   stages {
     stage ('Init Build') {
@@ -49,6 +49,25 @@ pipeline {
       }
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML -Doc-user=$OC_CREDS_USR -Doc-password=$OC_CREDS_PSW install -P$ENV_PROFILE,ocp-deployment $MVN_ARGS'
+      }
+    }
+
+    stage ('Tag Release') {
+      when {
+        environment name: 'ENV_PROFILE', value: 'prod'
+      }
+      steps {
+        script {
+          projectVersion =
+              sh(returnStdout: true,
+                 script: 'mvn -s $MVN_SETTINGS_XML help:evaluate -Dexpression=project.version -DforceStdout -q -pl .')
+        }
+
+        sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
+
+        sshagent([ gitCredential ]) {
+          sh "git push origin ${projectVersion} HEAD:${BRANCH_NAME}"
+        }
       }
     }
 
