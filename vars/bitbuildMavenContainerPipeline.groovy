@@ -40,7 +40,6 @@ pipeline {
       }
     }
 
-
 /*
     stage ('Build/UnitTest') {
       when {
@@ -81,7 +80,7 @@ pipeline {
         }
 
         sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
-        sh "git push ${projectVersion}"
+        sh "git push ${projectVersion} HEAD:${BRANCH_NAME}"
       }
     }
 
