@@ -32,7 +32,6 @@ pipeline {
       steps {
         script {
           scmUrl = sh(returnStdout: true, script: 'git config remote.origin.url')
-
           def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
           if(dirs.length() > 0)
@@ -42,6 +41,7 @@ pipeline {
     }
 
 
+/*
     stage ('Build/UnitTest') {
       when {
         not { environment name: 'ENV_PROFILE', value: 'local' }
@@ -50,8 +50,6 @@ pipeline {
         MVN_ARGS = "${mvnArgs}"
       }
       steps {
-        echo "URL: ${scmUrl}"
-        echo "BRANCH: ${BRANCH_NAME}"
         sh 'mvn -s $MVN_SETTINGS_XML install -P$ENV_PROFILE $MVN_ARGS'
       }
     }
@@ -69,6 +67,7 @@ pipeline {
         sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE $MVN_ARGS'
       }
     }
+*/
 
     stage ('Tag Release') {
       when {
@@ -81,7 +80,7 @@ pipeline {
                  script: 'mvn -s $MVN_SETTINGS_XML help:evaluate -Dexpression=project.version -DforceStdout -q -pl .')
         }
 
-        sh "git tag -a ${projectVersion}"
+        sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
         sh "git push ${projctVersion}"
       }
     }
