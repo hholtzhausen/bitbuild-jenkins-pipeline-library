@@ -12,6 +12,7 @@ def call(body) {
 def mvnArgs = ""
 def scmUrl
 def projectVersion
+def gitCredential = "git-credential"
 
 pipeline {
   agent {
@@ -80,7 +81,9 @@ pipeline {
         }
 
         sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
-        sh "git push origin ${projectVersion} HEAD:${BRANCH_NAME}"
+        sshagent([ gitCredential ]) {
+          sh "git push origin ${projectVersion} HEAD:${BRANCH_NAME}"
+        }
       }
     }
 
