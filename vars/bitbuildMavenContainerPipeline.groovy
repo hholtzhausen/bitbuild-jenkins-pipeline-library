@@ -80,7 +80,7 @@ pipeline {
         }
 
         sh "git tag -a ${projectVersion} -m 'Tagging release ${projectVersion} from pipeline'"
-        sh "git push ${projectVersion} HEAD:${BRANCH_NAME}"
+        sh "git push origin ${projectVersion} HEAD:${BRANCH_NAME}"
       }
     }
 
