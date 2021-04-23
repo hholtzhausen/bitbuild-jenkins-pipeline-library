@@ -41,20 +41,6 @@ pipeline {
       }
     }
 
-    stage ('Tag Release') {
-      when {
-        environment name: 'ENV_PROFILE', value: 'prod'
-      }
-      steps {
-        script {
-          projectVersion = 
-              sh(returnStdout: true, 
-                 script: 'mvn -s $MVN_SETTINGS_XML help:evaluate -Dexpression=project.version -DforceStdout -q -pl .')
-        }
-
-        echo "VERSION: ${projectVersion}"
-      }
-    }
 
     stage ('Build/UnitTest') {
       when {
@@ -79,10 +65,26 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
+        //sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE $MVN_ARGS'
       }
     }
 
+    stage ('Tag Release') {
+      when {
+        environment name: 'ENV_PROFILE', value: 'prod'
+      }
+      steps {
+        script {
+          projectVersion = 
+              sh(returnStdout: true, 
+                 script: 'mvn -s $MVN_SETTINGS_XML help:evaluate -Dexpression=project.version -DforceStdout -q -pl .')
+        }
+
+        sh "git tag -a ${projectVersion}"
+        sh "git push ${projctVersion}"
+      }
+    }
 
     stage ('Clean') {
       when {
