@@ -30,3 +30,13 @@ def getChangeSetDirs(changeLogSets) {
 
   return output.join(",")
 }
+
+
+def getPropOrDefault(Closure c, def defaultVal) {
+  try {
+    return c()
+  }
+  catch( groovy.lang.MissingPropertyException e ) {
+    return defaultVal
+  }
+}

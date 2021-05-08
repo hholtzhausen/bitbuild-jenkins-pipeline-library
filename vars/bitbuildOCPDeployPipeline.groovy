@@ -1,6 +1,8 @@
 //def build_agent = 'bitbuild-maven-oci'
+//def git_credentials = 'git-credential'
 //def mvn_settings = 'bitbuild-maven-settings'
 //def oc_creds_prefix = 'bitbuild-oc-login'
+//def git_crypt_credentials = 'bitbuild-git-crypt-key'
 
 def call(body) {
     // evaluate the body block, and collect configuration into the object
@@ -12,6 +14,7 @@ def call(body) {
 def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
+def gitCryptKeyName = getPropOrDefault({pipelineParams.git_crypt_credentials},"")
 
 pipeline {
   agent {
@@ -36,6 +39,18 @@ pipeline {
           if(dirs.length() > 0)
             mvnArgs = "-pl .,${dirs}"
         }
+      }
+    }
+
+    stage ('Unlock Secrets')
+      when {
+        expression { return gitCryptKeyName } 
+      }
+      environment {
+        GIT_CRYPT_CREDS = credentials("${gitCryptKeyName}")
+      }
+      steps {
+        sh 'git-crypt unlock $GIT_CRYPT_CREDS'
       }
     }
 
