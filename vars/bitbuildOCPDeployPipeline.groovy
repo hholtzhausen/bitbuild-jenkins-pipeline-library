@@ -2,7 +2,7 @@
 //def git_credentials = 'git-credential'
 //def mvn_settings = 'bitbuild-maven-settings'
 //def oc_creds_prefix = 'bitbuild-oc-login'
-//def git_crypt_credentials = 'bitbuild-git-crypt-key'
+//def git_crypt_credentials = 'my-git-crypt-key'
 
 def call(body) {
     // evaluate the body block, and collect configuration into the object
