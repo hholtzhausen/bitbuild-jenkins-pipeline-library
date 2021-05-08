@@ -42,7 +42,7 @@ pipeline {
       }
     }
 
-    stage ('Unlock Secrets')
+    stage ('Unlock Secrets') {
       when {
         expression { return gitCryptKeyName } 
       }
