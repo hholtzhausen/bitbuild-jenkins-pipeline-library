@@ -14,7 +14,7 @@ def call(body) {
 def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
-def gitCryptKeyName = getPropOrDefault({pipelineParams.git_crypt_credentials},"")
+def gitCryptKeyName = bitbuildUtil.getPropOrDefault({pipelineParams.git_crypt_credentials},"")
 
 pipeline {
   agent {
