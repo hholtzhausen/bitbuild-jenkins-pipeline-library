@@ -25,7 +25,7 @@ pipeline {
 
   environment {
     ENV_PROFILE = bitbuildUtil.getEnvProfile(BRANCH_NAME)
-    DR_PROFILE = drProfile
+    DR_PROFILE = "${drProfile}"
     MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
     REGISTRY_CREDS = "${pipelineParams.registry_creds_prefix}-${env.ENV_PROFILE}"
     DR_REGISTRY_CREDS = "${pipelineParams.registry_creds_prefix}-${env.DR_PROFILE}"
