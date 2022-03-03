@@ -2,6 +2,7 @@
 //def mvn_settings = 'bitbuild-maven-settings'
 //def registry_creds_prefix = 'bitbuild-registry-auth-json'
 //def git_crypt_credentials = 'my-git-crypt-key'
+//def dr_profile = 'dr'
 
 
 def call(body) {
@@ -15,6 +16,7 @@ def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
 def gitCryptKeyName = bitbuildUtil.getPropOrDefault({pipelineParams.git_crypt_credentials},"")
+def drProfile = bitbuildUtil.getPropOrDefault({pipelineParams.dr_profile},"")
 
 pipeline {
   agent {
@@ -23,8 +25,10 @@ pipeline {
 
   environment {
     ENV_PROFILE = bitbuildUtil.getEnvProfile(BRANCH_NAME)
+    DR_PROFILE = drProfile
     MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
     REGISTRY_CREDS = "${pipelineParams.registry_creds_prefix}-${env.ENV_PROFILE}"
+    DR_REGISTRY_CREDS = "${pipelineParams.registry_creds_prefix}-${env.DR_PROFILE}"
   }
 
   stages {
@@ -34,10 +38,13 @@ pipeline {
       }
       steps {
         script {
-          def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+          if(env.ENV_PROFILE != 'prod')
+          {
+            def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
-          if(dirs.length() > 0)
-            mvnArgs = "-pl .,${dirs}"
+            if(dirs.length() > 0)
+              mvnArgs = "-pl .,${dirs}"
+          }
         }
       }
     }
@@ -75,7 +82,22 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
+        echo '$REGISTRY_AUTH_FILE'
         sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
+      }
+    }
+
+    stage ('Push to Registry (DR)') {
+      when {
+          expression { drProfile != "" }
+          environment name: 'ENV_PROFILE', value: 'prod' 
+      }
+      environment {
+        REGISTRY_AUTH_FILE = credentials("${DR_REGISTRY_CREDS}")
+      }
+      steps {
+        echo '$REGISTRY_AUTH_FILE'
+        sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true exec:exec@oci-image-deploy -P$DR_PROFILE,oci-image'
       }
     }
 
