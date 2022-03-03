@@ -82,21 +82,18 @@ pipeline {
         REGISTRY_AUTH_FILE = credentials("${REGISTRY_CREDS}")
       }
       steps {
-        echo '$REGISTRY_AUTH_FILE'
         sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true deploy -P$ENV_PROFILE,oci-image $MVN_ARGS'
       }
     }
 
     stage ('Push to Registry (DR)') {
       when {
-          expression { drProfile != "" }
-          environment name: 'ENV_PROFILE', value: 'prod' 
+          expression { drProfile && env.ENV_PROFILE == 'prod' }
       }
       environment {
         REGISTRY_AUTH_FILE = credentials("${DR_REGISTRY_CREDS}")
       }
       steps {
-        echo '$REGISTRY_AUTH_FILE'
         sh 'mvn -s $MVN_SETTINGS_XML -DskipTests=true exec:exec@oci-image-deploy -P$DR_PROFILE,oci-image'
       }
     }
