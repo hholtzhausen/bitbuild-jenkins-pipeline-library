@@ -3,6 +3,7 @@
 //def mvn_settings = 'bitbuild-maven-settings'
 //def oc_creds_prefix = 'bitbuild-oc-login'
 //def git_crypt_credentials = 'my-git-crypt-key'
+//def dr_profile = 'dr'
 
 def call(body) {
     // evaluate the body block, and collect configuration into the object
@@ -15,6 +16,7 @@ def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
 def gitCryptKeyName = bitbuildUtil.getPropOrDefault({pipelineParams.git_crypt_credentials},"")
+def drProfile = bitbuildUtil.getPropOrDefault({pipelineParams.dr_profile},"")
 
 pipeline {
   agent {
@@ -23,8 +25,10 @@ pipeline {
 
   environment {
     ENV_PROFILE = bitbuildUtil.getEnvProfile(BRANCH_NAME)
+    DR_PROFILE = "${drProfile}"
     MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
     OC_CREDS_ID = "${pipelineParams.oc_creds_prefix}-${env.ENV_PROFILE}"
+    DR_OC_CREDS_ID = "${pipelineParams.oc_creds_prefix}-${env.DR_PROFILE}"
   }
 
   stages {
@@ -34,10 +38,13 @@ pipeline {
       }
       steps {
         script {
-          def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+          if(env.ENV_PROFILE != 'prod')
+          {
+            def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
-          if(dirs.length() > 0)
-            mvnArgs = "-pl .,${dirs}"
+            if(dirs.length() > 0)
+              mvnArgs = "-pl .,${dirs}"
+          }
         }
       }
     }
@@ -64,6 +71,18 @@ pipeline {
       }
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML -Doc-token=$OC_CREDS install -P$ENV_PROFILE,ocp-deployment $MVN_ARGS'
+      }
+    }
+
+    stage ('Apply Openshift Resources (DR)') {
+      when {
+         expression { drProfile && env.ENV_PROFILE == 'prod' }
+      }
+      environment {
+        DR_OC_CREDS = credentials("${DR_OC_CREDS_ID}")
+      }
+      steps {
+        sh 'mvn -s $MVN_SETTINGS_XML -Doc-token=$DR_OC_CREDS install -P$DR_PROFILE,ocp-deployment'
       }
     }
 
