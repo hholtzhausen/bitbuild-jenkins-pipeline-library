@@ -27,6 +27,7 @@ pipeline {
     stage ('Integration Tests') {
       steps {
         sh 'mvn -s $MVN_SETTINGS_XML -Doidc-clientid=$API_CREDS_USR -Doidc-clientsecret=$API_CREDS_PSW test $MVN_ARGS'
+        junit '**/surefire-reports/*.xml'
       }
     }
 
