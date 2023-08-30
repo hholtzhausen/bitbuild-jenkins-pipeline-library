@@ -15,7 +15,7 @@ def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
 def gitCryptKeyName = bitbuildUtil.getPropOrDefault({pipelineParams.git_crypt_credentials},"")
-String changeSetOnly = bitbuildUtil.getPropOrDefault({pipelineParams.change_set_only},"true")
+def changeSetOnly = bitbuildUtil.getPropOrDefault({pipelineParams.change_set_only},"true")
 
 pipeline {
   agent {
@@ -25,6 +25,7 @@ pipeline {
   environment {
     ENV_PROFILE = bitbuildUtil.getEnvProfile(BRANCH_NAME)
     MVN_SETTINGS_XML = credentials("${pipelineParams.mvn_settings}")
+    CHANGE_SET_ONLY = "${changeSetOnly}"
   }
 
   stages {
@@ -34,13 +35,15 @@ pipeline {
       }
       steps {
         script {
-   
-          if(changeSetOnly.equals("true"))
+          if(env.ENV_PROFILE != 'prod')
           {
-            def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
-
-            if(dirs.length() > 0)
-              mvnArgs = "-pl .,${dirs}"
+            if(env.CHANGE_SET_ONLY == 'true')
+            {
+              def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
+  
+              if(dirs.length() > 0)
+                mvnArgs = "-pl .,${dirs}"
+            }
           }
         }
       }
