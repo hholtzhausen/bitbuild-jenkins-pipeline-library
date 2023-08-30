@@ -34,7 +34,6 @@ def getChangeSetDirs(changeLogSets) {
 
 def getPropOrDefault(Closure c, def defaultVal) {
   try {
-    println("TRYING")
     def out = c()
 
     if(out)
@@ -43,7 +42,6 @@ def getPropOrDefault(Closure c, def defaultVal) {
       return defaultVal
   }
   catch( groovy.lang.MissingPropertyException e ) {
-    println("FAILING")
     return defaultVal
   }
 }
