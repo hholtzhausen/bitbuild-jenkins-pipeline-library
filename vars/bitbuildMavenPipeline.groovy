@@ -35,7 +35,7 @@ pipeline {
       steps {
         script {
    
-          if(changeSetOnly == 'true')
+          if(changeSetOnly == "true")
           {
             def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
