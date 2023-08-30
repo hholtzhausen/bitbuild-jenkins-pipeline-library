@@ -42,6 +42,8 @@ pipeline {
         script {
           if(env.ENV_PROFILE != 'prod')
           {
+            echo ' CHANGE SET: ${env.CHANGE_SET_ONLY}'
+
             if(env.CHANGE_SET_ONLY == 'true')
             {
               def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
