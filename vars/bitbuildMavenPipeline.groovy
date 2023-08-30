@@ -15,7 +15,7 @@ def mvnArgs = ""
 def projectVersion
 def gitCredential = pipelineParams.git_credentials
 def gitCryptKeyName = bitbuildUtil.getPropOrDefault({pipelineParams.git_crypt_credentials},"")
-def changeSetOnly = bitbuildUtil.getPropOrDefault({pipelineParams.change_set_only},"true")
+String changeSetOnly = bitbuildUtil.getPropOrDefault({pipelineParams.change_set_only},"true")
 
 pipeline {
   agent {
@@ -35,7 +35,7 @@ pipeline {
       steps {
         script {
    
-          if(changeSetOnly == "true")
+          if(changeSetOnly.equals("true"))
           {
             def dirs = bitbuildUtil.getChangeSetDirs(currentBuild.changeSets)
 
